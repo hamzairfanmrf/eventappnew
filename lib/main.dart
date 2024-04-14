@@ -1,4 +1,5 @@
 
+import 'package:eventappnew/live_streaming/join_screen.dart';
 import 'package:eventappnew/view/animation/custom_animation.dart';
 import 'package:eventappnew/view/authentication/login.dart';
 import 'package:eventappnew/view/event/event_detail.dart';
@@ -71,8 +72,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         debugShowCheckedModeBanner: false,
-          home: //MySample()
-          SplashScreen(isAuthenticated: isAuthenticated,),
+          home: JoinScreen()
+         // SplashScreen(isAuthenticated: isAuthenticated,),
     ),
       );
   }

@@ -54,6 +54,8 @@ dependencies:
   animated_splash_screen:
   lottie:
   flutter_credit_card:
+  videosdk:
+  flutter_vlc_player:
 
 
 
