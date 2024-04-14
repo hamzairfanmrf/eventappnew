@@ -72,8 +72,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         debugShowCheckedModeBanner: false,
-          home: JoinScreen()
-         // SplashScreen(isAuthenticated: isAuthenticated,),
+          home:
+          SplashScreen(isAuthenticated: isAuthenticated,),
     ),
       );
   }

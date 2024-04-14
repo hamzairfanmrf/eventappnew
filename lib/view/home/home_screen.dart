@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventappnew/constants/constants.dart';
+import 'package:eventappnew/live_streaming/join_screen.dart';
 import 'package:eventappnew/user/user_profile.dart';
 import 'package:eventappnew/view/authentication/login.dart';
 import 'package:eventappnew/view/event/participated_events.dart';
@@ -178,6 +179,22 @@ context.read<EventProvider>().getNearByEvents(context);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginForm()),
+                );
+              },
+            ),
+            ListTile(
+              title: Row(
+                children: [
+                  Icon(Icons.join_inner, color: defaultColor),
+                  SizedBox(width: 10),
+                  Text('Live Streaming'),
+                ],
+              ),
+              onTap: () async {
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => JoinScreen()),
                 );
               },
             ),
