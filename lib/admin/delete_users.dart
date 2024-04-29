@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:eventappnew/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csv/csv.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ShowAllUsers extends StatefulWidget {
   const ShowAllUsers({Key? key}) : super(key: key);
@@ -10,6 +14,13 @@ class ShowAllUsers extends StatefulWidget {
 }
 
 class _ShowAllUsersState extends State<ShowAllUsers> {
+  late List<Map<String, dynamic>> usersData;
+  @override
+  void initState() {
+    // TODO: implement initState
+    usersData = [];
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +43,12 @@ class _ShowAllUsersState extends State<ShowAllUsers> {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(child: Text('No users found.'));
           }
-
+          usersData = snapshot.data!.docs.map((doc) {
+            return {
+              'name': doc['name'],
+              'phoneNumber': doc['phoneNumber'],
+            };
+          }).toList();
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
@@ -51,6 +67,41 @@ class _ShowAllUsersState extends State<ShowAllUsers> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await generateCsv();
+        },
+        child: Icon(Icons.download),
+        backgroundColor: defaultColor,
+      ),
+    );
+  }
+
+  Future<void> generateCsv() async {
+    final List<List<dynamic>> rows = [];
+
+    // Add header row
+    rows.add(['Name', 'Phone Number']);
+
+    // Add user data rows
+    usersData.forEach((user) {
+      rows.add([user['name'], user['phoneNumber']]);
+    });
+
+    // Get directory path
+    final directory = await getExternalStorageDirectory();
+    final filePath = '${directory!.path}/users.csv';
+
+    // Write CSV file
+    File file = File(filePath);
+    String csv = const ListToCsvConverter().convert(rows);
+    await file.writeAsString(csv);
+
+    // Show message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('CSV file generated and saved to $filePath'),
       ),
     );
   }

@@ -484,12 +484,12 @@ var time=null;
                         desc: "Please enter all fields",
                         buttons: [
                           DialogButton(
-                            child: Text(
+                            onPressed: () => Navigator.pop(context),
+                            width: 120,
+                            child: const Text(
                               "Okay",
                               style: TextStyle(color: Colors.white, fontSize: 20),
                             ),
-                            onPressed: () => Navigator.pop(context),
-                            width: 120,
                           )
                         ],
                       ).show();

@@ -1,5 +1,6 @@
 
 import 'package:eventappnew/live_streaming/join_screen.dart';
+import 'package:eventappnew/user/user_profile.dart';
 import 'package:eventappnew/view/animation/custom_animation.dart';
 import 'package:eventappnew/view/authentication/login.dart';
 import 'package:eventappnew/view/event/event_detail.dart';
@@ -72,8 +73,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         debugShowCheckedModeBanner: false,
-          home:
-          SplashScreen(isAuthenticated: isAuthenticated,),
+          home: SplashScreen(isAuthenticated: isAuthenticated,),
     ),
       );
   }

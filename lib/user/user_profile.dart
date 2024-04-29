@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventappnew/constants/constants.dart';
 import 'package:eventappnew/view/home/home_screen.dart';
@@ -14,6 +15,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../view/animation/custom_animation.dart';
+import '../view_model/event_provider.dart';
+import 'name_editor.dart';
 
 void configLoading() {
   EasyLoading.instance
@@ -46,6 +49,9 @@ class _ProfileState extends State<Profile> {
   UploadTask? task;
   File? image;
   Timer? _timer;
+  bool _isEditingName = false;
+   String _name='';
+
   int i=0;
   Future getImage() async {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -76,147 +82,98 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-
-
     hei = MediaQuery.of(context).size.height;
     wid = MediaQuery.of(context).size.width;
-    return WillPopScope(
-      onWillPop: () async {
 
-        return true;
-      },
-      child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .snapshots(),
-          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Text("Loading");
-            }
-            return Scaffold(
-                key: _scaffoldKey,
-                floatingActionButton: FloatingActionButton(
-                  backgroundColor: defaultColor,
-                  child: Icon(
-                    Icons.navigate_next,
-                    color: Colors.white,
-                  ),
-                  onPressed: ()  {
-                    uploadToFirebase(image);
-                    print("image url iss ${snapshot.data!['imageUrl']}");
 
-                  },
+    return Scaffold(
+      key: _scaffoldKey,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: defaultColor,
+        child: Icon(
+          Icons.navigate_next,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          uploadToFirebase(image);
+
+        },
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: hei / 5.25,
+              width: wid,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(50.0),
+                  bottomRight: Radius.circular(50.0),
                 ),
-                body:  Column(children: [
-                  Container(
-                    height: hei / 5.25,
-                    width: wid,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(50.0),
-                            bottomRight: Radius.circular(50.0)),
-                        gradient: LinearGradient(
-                            colors: [Colors.lightGreen, Colors.yellow],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight)),
-                    child: Center(
-                      child: Text(
-                        'Profile',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: hei / 37.421,
-                        ),
-                      ),
-                    ),
+                gradient: LinearGradient(
+                  colors: [Colors.lightGreen, Colors.yellow],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  'Profile',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: hei / 37.421,
                   ),
-                  Expanded(
-                    child: Stack(children: <Widget>[
-                      Container(
-                        height: double.infinity,
-                        margin: const EdgeInsets.only(
-                            left: 30.0, right: 30.0, top: 30.0),
-                        child: Text(
-                          snapshot.data!['name'],
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
-                      SizedBox(
-                          height: 50),
-                      Container(
-                        height: double.infinity,
-                        margin: const EdgeInsets.only(
-                            left: 30.0, right: 30.0, top: 80.0),
-                        child: Text(
-                          snapshot.data!['phoneNumber'],
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
-                      Center(
-                        child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                                onTap: () async {
-                                  getImage();
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(builder: (context) => DummyFaceCheck()),
-                                  // );
+                ),
+              ),
+            ),
+            ListTile(
+              title: _isEditingName
+                  ? NameEditor(
+                initialValue: _name,
+                onSave: (newName) {
+                  setState(() {
+                    _name = newName;
+                    _isEditingName = false;
+                  });
+                },
+              )
+                  : Text(_name),
+              trailing: IconButton(
+                icon: _isEditingName ? Icon(Icons.done) : Icon(Icons.edit),
+                onPressed: () {
+                  setState(() {
+                    _isEditingName = !_isEditingName;
+                  });
+                },
+              ),
+            ),
+            CircleAvatar(
 
-                                },
-                                child:snapshot.data!['imageUrl']=="default"?
-                                ClipOval(
-                                  child: image != null
-                                      ? Image.file(
-                                    image!,
-                                    height: 160,
-                                    width: 160,
-                                    fit: BoxFit.cover,
-                                  )
-                                      : Icon(
-                                    Icons.camera_alt,
-                                  ),
-                                ):ClipOval(
-                                  child: Image.network(snapshot.data!['imageUrl'],
-                                    height: 160,
-                                    width: 160,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            InkWell(
-                              onTap: (){
-                                getImage();
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(builder: (context) => DummyFaceCheck()),
-                                // );
-                              },
-                              child: Text("Change Picture",
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.red
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-
-                    ]),
-                  )
-                ])
-            );
-          }),
+              radius: 100, // Set your desired radius
+              backgroundColor: Colors.transparent, // Set background color of the circle avatar
+              child: InkWell(
+                onTap: (){
+                  getImage();
+                },
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: context.read<EventProvider>().getUserImageUrl(), // Fetch user image URL from your provider
+                    width: 150, // Set width and height of the image inside the circle avatar
+                    height: 150,
+                    fit: BoxFit.cover, // Adjust the image to cover the circle avatar
+                    placeholder: (context, url) => CircularProgressIndicator(), // Placeholder widget while loading
+                    errorWidget: (context, url, error) => Icon(Icons.error), // Widget to display on error
+                  ),
+                ),
+              ),
+            ),
+            // Remaining widgets...
+          ],
+        ),
+      ),
     );
-
   }
 
   Future  uploadToFirebase(File? img) async {
@@ -236,7 +193,8 @@ class _ProfileState extends State<Profile> {
       var db = await FirebaseFirestore.instance.collection('Users').doc(FirebaseAuth.instance.currentUser!.uid);
 
       Map<String,dynamic> ourData={
-        'imageUrl':urlDownload
+        'imageUrl':urlDownload,
+        'name':_name,
       };
 
       db.update(ourData).then((value) {

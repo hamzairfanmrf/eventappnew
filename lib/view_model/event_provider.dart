@@ -25,6 +25,27 @@ class EventProvider extends ChangeNotifier {
   List<EventModel> getAllEvents=[];
 
   EventModel get eventModel => _eventModel!;
+  String _userImageUrl='';
+
+  // Function to fetch user data and update image URL for current user
+  Future<void> fetchUserDataAndUpdateImageUrl() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('Users').doc(userId).get();
+      var userData = snapshot.data() as Map<String, dynamic>; // Explicit cast
+      if (userData != null) {
+        _userImageUrl = userData['imageUrl'];
+        notifyListeners();
+      }
+    } catch (error) {
+      print('Error fetching user data: $error');
+    }
+  }
+
+  // Function to get user image URL
+  String getUserImageUrl() {
+    return _userImageUrl;
+  }
   var snackBar = SnackBar(
     content: Text('OTP sent'),
   );
@@ -352,7 +373,7 @@ getText(){
     return eventNameWithMaxScore;
   }
   Future<List<dynamic>> fetchRecommendations(String userId) async {
-    final String apiUrl = 'http://192.168.1.38:5000/recommend';
+    final String apiUrl = 'http://192.168.1.2:5000/recommend';
 
     final response = await http.post(
       Uri.parse(apiUrl),

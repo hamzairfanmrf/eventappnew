@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
 context.read<EventProvider>().getNearByEvents(context);
+context.read<EventProvider>().fetchUserDataAndUpdateImageUrl();
     super.initState();
   }
   double totalDist=0;
@@ -88,18 +89,35 @@ context.read<EventProvider>().getNearByEvents(context);
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: defaultColor,
+                color: defaultColor, // Set your desired background color here
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage('assets/event1.jpg'),
-                    fit: BoxFit.cover,
+              child: Column(
+                children: [
+                  CircleAvatar(
+
+                    radius: 60, // Set your desired radius
+                    backgroundColor: Colors.transparent, // Set background color of the circle avatar
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: context.read<EventProvider>().getUserImageUrl(), // Fetch user image URL from your provider
+                        width: 100, // Set width and height of the image inside the circle avatar
+                        height: 100,
+                        fit: BoxFit.cover, // Adjust the image to cover the circle avatar
+                        placeholder: (context, url) => CircularProgressIndicator(), // Placeholder widget while loading
+                        errorWidget: (context, url, error) => Icon(Icons.error), // Widget to display on error
+                      ),
+                    ),
                   ),
-                ),
+                  Text("Welcome to Events app",
+                  style: TextStyle(
+                    color: Colors.white
+                  ),
+                  ),
+                ],
               ),
+
             ),
+
             ListTile(
               title: Row(
                 children: [
@@ -780,11 +798,14 @@ context.read<EventProvider>().getNearByEvents(context);
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.network(
-                        categories[index].iconUrl,
+                      CachedNetworkImage(
+                        imageUrl: categories[index].iconUrl,
                         height: 20,
                         width: 20,
-                      ),
+                        placeholder: (context, url) => Icon(Icons.error) ?? Container(), // Fallback icon
+                        errorWidget: (context, url, error) => Icon(Icons.error) ?? Container(), // Fallback icon on error
+                      )
+                    ,
                       SizedBox(
                         width: 10,
                       ),

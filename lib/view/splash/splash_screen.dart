@@ -16,7 +16,7 @@ class SplashScreen extends StatelessWidget {
       duration: 3000, // Specify the duration of the animation
       splash: Lottie.asset('assets/event.json'), // Your animation goes here
       splashIconSize: 200, // Adjust the size of the animation
-      nextScreen: isAuthenticated ? HomeScreen() : LoginForm(), // Specify the screen that will be displayed after the animation
+      nextScreen: isAuthenticated != null && isAuthenticated ? HomeScreen() : LoginForm(),
       splashTransition: SplashTransition.slideTransition, // Choose the transition type
       backgroundColor: Colors.white, // Specify the background color
       centered: true, // Center the splash widget
